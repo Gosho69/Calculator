@@ -2,9 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 #define MAX_INPUT 1024
 #define MAX_TOKENS 256
+
+#define MY_PI 3.14159265358979323846
+#define MY_E 2.71828182845904523536
+// тея макрота са MY, за да не стане грещка със вече съществуващи макрота
 
 const char *valid_operations[] = {
     "+", "-", "*", "/", "ln", "log", "pi", "e"};
@@ -77,4 +82,59 @@ int tokenize_input(char tokens[][32], int *token_count)
     }
 
     return 1;
+}
+
+double add(double a, double b)
+{
+    return a + b;
+}
+
+double subtract(double a, double b)
+{ // второто се вади от първото
+    return a - b;
+}
+
+double multiply(double a, double b)
+{
+    return a * b;
+}
+
+double divide(double a, double b)
+{ // първото се дели на второто
+    if (b == 0)
+    {
+        printf("Error. Can't divide by zero!");
+        return 0;
+    }
+    return a / b;
+}
+
+double pi()
+{
+    return MY_PI;
+}
+
+double e()
+{
+    return MY_E;
+}
+
+double ln(double a)
+{ // Натурален логаритъм
+    if (a <= 0)
+    {
+        printf("Error: ln(x), x must be > 0.\n");
+        return 0;
+    }
+    return log(a);
+}
+
+double log_base(double a, double base)
+{ // Логаритъм при произволна основа
+    if (a <= 0 || base <= 0 || base == 1)
+    {
+        printf("Error: log_b(a), a > 0, base > 0 , base != 1.\n");
+        return 0;
+    }
+    return log(a) / log(base);
 }
