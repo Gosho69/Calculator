@@ -74,12 +74,6 @@ int tokenize_input(char tokens[][32], int *token_count)
             return 0;
         }
 
-        if (!is_integer(token) && !is_valid_operation(token))
-        {
-            fprintf(stderr, "Invalid token: '%s'\n", token);
-            return 0;
-        }
-
         strcpy(tokens[(*token_count)++], token);
         token = strtok(NULL, " \t");
     }
@@ -89,7 +83,54 @@ int tokenize_input(char tokens[][32], int *token_count)
         fprintf(stderr, "The equation is empty\n");
         return 0;
     }
+    return 1;
+}
 
+int validate_equation(char tokens[][32], int *token_count)
+{
+    int number = 0;
+    for (int j = 0; j < *token_count; j++)
+    {
+        char *token = tokens[j];
+        if (is_valid_operation(token))
+        {
+            if (number <= 1)
+            {
+                fprintf(stderr, "Not enough numbers to perform operation %s \n", token);
+                return 0;
+            }
+            number = 1;
+        }
+        else
+        {
+            number++;
+        }
+    }
+    int operations = 0;
+    int numbers = 0;
+    for (int i = 0; i < *token_count; i++)
+    {
+        char *token = tokens[i];
+        if (!is_integer(token) && !is_valid_operation(token))
+        {
+            fprintf(stderr, "Invalid token: '%s'\n", token);
+            return 0;
+        }
+        if (is_valid_operation(token))
+        {
+            operations++;
+        }
+        else
+        {
+            numbers++;
+        }
+    }
+    if (numbers <= operations)
+    {
+        fprintf(stderr, "Not enough numbers to perform equation!");
+        return 0;
+    }
+    // Проверката дали е останало само едно число след последната операция в стака е във функцията за обработване на израза, тъй като е най-лесно
     return 1;
 }
 

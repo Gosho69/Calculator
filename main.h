@@ -29,6 +29,7 @@ double pop(struct Stack *stack);
 int is_valid_operation(const char *token);
 int is_integer(const char *token);
 int tokenize_input(char tokens[][32], int *token_count);
+int validate_equation(char tokens[][32], int *token_count);
 
 double add(double a, double b);
 double subtract(double a, double b); // второто се вади от първото
