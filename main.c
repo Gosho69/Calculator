@@ -26,10 +26,18 @@ int is_integer(const char *token)
     if (!*token)
         return 0;
 
+    int has_decimal = 0;
+
     while (*token)
     {
-        if (!isdigit(*token))
+        if (*token == '.' && !has_decimal)
+        {
+            has_decimal = 1;
+        }
+        else if (!isdigit(*token))
+        {
             return 0;
+        }
         token++;
     }
     return 1;
@@ -47,6 +55,13 @@ int tokenize_input(char tokens[][32], int *token_count)
     }
 
     input[strcspn(input, "\n")] = 0;
+
+    if (strcmp(input, "exit") == 0)
+    {
+        strcpy(tokens[0], "exit");
+        *token_count = 1;
+        return 1;
+    }
 
     char *token = strtok(input, " \t");
     *token_count = 0;
@@ -131,4 +146,160 @@ double log_base(double a, double base)
         return 0;
     }
     return log(a) / log(base);
+}
+
+struct Stack *createStack(int cap)
+{
+    struct Stack *stack = (struct Stack *)malloc(sizeof(struct Stack));
+    stack->cap = cap;
+    stack->top = -1;
+    stack->arr = (double *)malloc(cap * sizeof(double));
+    return stack;
+}
+
+void deleteStack(struct Stack *stack)
+{
+    free(stack->arr);
+    free(stack);
+}
+
+int isFull(struct Stack *stack)
+{
+    return stack->top >= stack->cap - 1;
+}
+
+int isEmpty(struct Stack *stack)
+{
+    return stack->top < 0;
+}
+
+int push(struct Stack *stack, double x)
+{
+    if (isFull(stack))
+    {
+        printf("Stack Overflow\n");
+        return 0;
+    }
+    stack->arr[++stack->top] = x;
+    return 1;
+}
+
+double pop(struct Stack *stack)
+{
+    if (isEmpty(stack))
+    {
+        printf("Stack Underflow\n");
+        return 0;
+    }
+    return stack->arr[stack->top--];
+}
+
+double evaluate_calc(char tokens[][32], int token_count)
+{
+    struct Stack *stack = createStack(MAX_TOKENS);
+    double result = 0;
+
+    for (int i = 0; i < token_count; i++)
+    {
+        char *token = tokens[i];
+
+        if (!is_valid_operation(token))
+        {
+            double num = atof(token);
+            push(stack, num);
+        }
+        else
+        {
+            if (strcmp(token, "+") == 0)
+            {
+                if (stack->top < 1)
+                {
+                    printf("Error: Not enough operands for addition\n");
+                    deleteStack(stack);
+                    return 0;
+                }
+                double b = stack->arr[stack->top--];
+                double a = stack->arr[stack->top--];
+                push(stack, add(a, b));
+            }
+            else if (strcmp(token, "-") == 0)
+            {
+                if (stack->top < 1)
+                {
+                    printf("Error: Not enough operands for subtraction\n");
+                    deleteStack(stack);
+                    return 0;
+                }
+                double b = stack->arr[stack->top--];
+                double a = stack->arr[stack->top--];
+                push(stack, subtract(a, b));
+            }
+            else if (strcmp(token, "*") == 0)
+            {
+                if (stack->top < 1)
+                {
+                    printf("Error: Not enough operands for multiplication\n");
+                    deleteStack(stack);
+                    return 0;
+                }
+                double b = stack->arr[stack->top--];
+                double a = stack->arr[stack->top--];
+                push(stack, multiply(a, b));
+            }
+            else if (strcmp(token, "/") == 0)
+            {
+                if (stack->top < 1)
+                {
+                    printf("Error: Not enough operands for division\n");
+                    deleteStack(stack);
+                    return 0;
+                }
+                double b = stack->arr[stack->top--];
+                double a = stack->arr[stack->top--];
+                push(stack, divide(a, b));
+            }
+            else if (strcmp(token, "ln") == 0)
+            {
+                if (stack->top < 0)
+                {
+                    printf("Error: Not enough operands for ln\n");
+                    deleteStack(stack);
+                    return 0;
+                }
+                double a = stack->arr[stack->top--];
+                push(stack, ln(a));
+            }
+            else if (strcmp(token, "log") == 0)
+            {
+                if (stack->top < 1)
+                {
+                    printf("Error: Not enough operands for log\n");
+                    deleteStack(stack);
+                    return 0;
+                }
+                double base = stack->arr[stack->top--];
+                double a = stack->arr[stack->top--];
+                push(stack, log_base(a, base));
+            }
+            else if (strcmp(token, "pi") == 0)
+            {
+                push(stack, pi());
+            }
+            else if (strcmp(token, "e") == 0)
+            {
+                push(stack, e());
+            }
+        }
+    }
+    if (stack->top == 0)
+    {
+        result = stack->arr[stack->top];
+    }
+    else
+    {
+        printf("Error: Invalid expression (too many operands left on stack)\n");
+    }
+
+    deleteStack(stack);
+    return result;
 }

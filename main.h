@@ -14,6 +14,18 @@
 #define MY_E 2.71828182845904523536
 // тея макрота са MY, за да не стане грещка със вече съществуващи макрота
 
+struct Stack
+{
+    int top, cap;
+    double *arr;
+};
+
+void deleteStack(struct Stack *stack);
+int isFull(struct Stack *stack);
+int isEmpty(struct Stack *stack);
+int push(struct Stack *stack, double x);
+double pop(struct Stack *stack);
+
 int is_valid_operation(const char *token);
 int is_integer(const char *token);
 int tokenize_input(char tokens[][32], int *token_count);
@@ -26,5 +38,6 @@ double pi(void);
 double e(void);
 double ln(double a);                    // Натурален логаритъм
 double log_base(double a, double base); // Логаритъм при произволна основа
+double evaluate_calc(char tokens[][32], int token_count);
 
 #endif
